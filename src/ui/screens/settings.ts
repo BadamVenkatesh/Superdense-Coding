@@ -11,6 +11,14 @@ export function settingsScreen(ctx: AppCtx): Screen {
       ...options.map(([v, text]) => h('button', { type: 'button', 'aria-pressed': String(v === value), onclick: () => { set(v); ctx.refresh(); } }, text)));
 
   const s = st.data.settings;
+  const volume = h('div', { style: 'display:flex;gap:10px;align-items:center' },
+    h('input', {
+      type: 'range', min: 0, max: 100, step: 5, value: Math.round(s.volume * 100), 'aria-label': 'Volume',
+      style: 'width:160px;accent-color:var(--link)',
+      oninput: (e: Event) => { const v = Number((e.target as HTMLInputElement).value) / 100; st.setSetting('volume', v); audio.configure({ volume: v }); },
+      onchange: () => { audio.unlock(); audio.pair(); },
+    }),
+    button('Test', { cls: 'small', onClick: () => { audio.unlock(); setTimeout(() => { audio.pair(); audio.decode('11'); }, 60); } }));
   const row = (title: string, desc: string, control: Node) =>
     h('div', { class: 'setting' }, h('div', {}, h('div', {}, title), h('div', { class: 'd' }, desc)), control);
 
@@ -18,6 +26,8 @@ export function settingsScreen(ctx: AppCtx): Screen {
     topbar(ctx, 'SETTINGS', 'THE OTHER HALF', [], '/'),
     h('div', { class: 'prose', style: 'width:100%' },
       row('Sound', 'Generated tones: no downloads. Every sound has a visual twin.', seg('Sound', s.sound, [[true, 'On'], [false, 'Off']], (v) => { st.setSetting('sound', v); audio.enabled = v; if (v) audio.unlock(); })),
+      row('Music', 'A generative duet: Alice’s and Bob’s drones, busier when messages pile up.', seg('Music', s.music, [[true, 'On'], [false, 'Off']], (v) => { st.setSetting('music', v); audio.configure({ music: v }); if (v) audio.unlock(); })),
+      row('Volume', 'Master volume for effects and music.', volume),
       row('Sound captions', 'Show a short caption for every sound cue.', seg('Captions', s.captions, [[true, 'On'], [false, 'Off']], (v) => st.setSetting('captions', v))),
       row('Reduced motion', 'Stops flowing animations. Link patterns stay readable as still shapes.', seg('Reduced motion', s.reducedMotion, [[null, 'Auto'], [true, 'On'], [false, 'Off']], (v) => st.setSetting('reducedMotion', v))),
       row('Names', 'GAME uses plain names (FLIP, TWIN…). CIRCUIT shows gates, Bell states and a live circuit. Press V anytime.', seg('View', s.view, [['game', 'GAME'], ['circuit', 'CIRCUIT']], (v) => ctx.setView(v))),

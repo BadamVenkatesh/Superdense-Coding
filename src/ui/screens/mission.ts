@@ -204,7 +204,7 @@ export function missionScreen(ctx: AppCtx, opts: MissionOpts): Screen {
     const btn = a === 'send' ? sendBtn : a === 'share' ? shareBtn : slowBtn;
     const r = m.press(a);
     if (r === 'done' || r === 'armed') {
-      if (r === 'armed') audio.click();
+      if (r === 'armed') audio.armed();
       return;
     }
     shake(btn);
@@ -223,7 +223,7 @@ export function missionScreen(ctx: AppCtx, opts: MissionOpts): Screen {
     const v = ctx.view();
     switch (e.type) {
       case 'spawn':
-        audio.tick();
+        audio.motif(e.msg.bits);
         announce(`New message ${e.msg.bits[0]} ${e.msg.bits[1]}`);
         break;
       case 'launch':
@@ -247,7 +247,7 @@ export function missionScreen(ctx: AppCtx, opts: MissionOpts): Screen {
         break;
       }
       case 'banked':
-        audio.arrive();
+        audio.banked();
         break;
       case 'bit':
         audio.answer(e.value, 'B');
@@ -259,9 +259,17 @@ export function missionScreen(ctx: AppCtx, opts: MissionOpts): Screen {
             dock: { t0: nowS(), pattern: msg.sentPattern ?? null, link: msg.sentPattern ? 'linked' : 'uncertain', bits: msg.decoded!, correct: e.correct },
             until: nowS() + 2.2,
           };
-          audio.decode(msg.decoded!);
+          audio.analyzer(msg.decoded!);
         }
-        if (e.correct) audio.good(); else audio.bad();
+        // pair decodes resolve on the analyzer's READ step (1.35 s); lone bits resolve now
+        const at = msg.via === 'pair' ? 1.35 : 0;
+        if (e.correct) {
+          audio.good(at);
+          if (m.streak > 0 && m.streak % 3 === 0) audio.streak(m.streak);
+        } else {
+          audio.bad(at);
+          if (Number.isFinite(m.cfg.hearts)) audio.heart(at + 0.3);
+        }
         const d = diagnosisText(msg.diagnosis, msg, v);
         const item = h('span', { class: `res ${e.correct ? 'good' : 'bad'}`, title: d },
           h('span', {}, msg.bits), e.correct ? h('span', { class: 'good' }, '✓') : h('span', { class: 'bad' }, `→ ${msg.decoded} ✗`), msg.via === 'bits' ? h('span', { class: 'muted' }, '·bits') : null);
@@ -275,6 +283,7 @@ export function missionScreen(ctx: AppCtx, opts: MissionOpts): Screen {
       }
       case 'expire': {
         audio.bad();
+        if (Number.isFinite(m.cfg.hearts)) audio.heart(0.25);
         const item = h('span', { class: 'res bad' }, h('span', {}, e.msg.bits), h('span', { class: 'bad' }, 'expired'));
         log.prepend(item);
         toast('A message expired before it reached Bob.', 'bad');
@@ -420,8 +429,45 @@ export function missionScreen(ctx: AppCtx, opts: MissionOpts): Screen {
     if (started && !paused && !ended) {
       m.tick(dt);
       for (const e of m.drain()) handle(e);
+      soundTransitions();
     }
     refresh();
+  }
+
+  // ── sound for state changes the engine doesn't emit as events ─────────
+  let wasReady = true;
+  let wasSpyOpen = false;
+  let zoneStates: string[] = [];
+  const fuseMarks = new Map<number, number>();
+  let mood = 0;
+  function soundTransitions() {
+    const ready = m.channelReady && !m.reserved;
+    if (ready && !wasReady && !m.armed && (m.target || m.rack.length < m.cfg.rackCap)) audio.channelReady();
+    wasReady = ready;
+    const zs = m.cfg.zones.map((z) => m.zoneState(z));
+    zs.forEach((st, i) => {
+      const prev = zoneStates[i] ?? 'off';
+      if (st === 'warn' && prev === 'off') audio.zone(false);
+      if (st === 'on' && prev !== 'on') audio.zone(true);
+    });
+    zoneStates = zs;
+    const open = m.spyOpen();
+    if (open && !wasSpyOpen) audio.spyEye();
+    wasSpyOpen = open;
+    // fuse warnings: once at 30 %, then a double tick each second in the last 2 s
+    let minFrac = 1;
+    for (const q of m.queue) {
+      if (!Number.isFinite(q.fuse)) continue;
+      const f = q.left / q.fuse;
+      minFrac = Math.min(minFrac, f);
+      const mark = fuseMarks.get(q.id) ?? 99;
+      if (f < 0.3 && mark === 99) { audio.fuse(false); fuseMarks.set(q.id, Math.ceil(q.left)); }
+      else if (q.left < 2 && Math.ceil(q.left) < mark) { audio.fuse(true); fuseMarks.set(q.id, Math.ceil(q.left)); }
+    }
+    // music: calm while banking, busier as messages wait and fuses run down
+    const target = Math.min(1, 0.12 + m.waiting.length * 0.18 + (1 - minFrac) * 0.45);
+    mood += (target - mood) * 0.03;
+    audio.setIntensity(mood);
   }
 
   // ── intro / pause / end ──────────────────────────────────────────────
@@ -439,12 +485,14 @@ export function missionScreen(ctx: AppCtx, opts: MissionOpts): Screen {
         level?.goal ? h('div', { class: 'formal' }, h('b', {}, 'Goal: '), level.goal) : null,
         h('div', { class: 'actions' }, button('Start', { cls: 'primary', key: 'Space', onClick: begin }), button('Levels', { cls: 'ghost', onClick: () => ctx.go(arcade ? '/' : '/levels') }))));
     el.append(overlay);
+    audio.open();
     setTimeout(() => overlay?.querySelector<HTMLButtonElement>('.btn.primary')?.focus(), 30);
   }
 
   function begin() {
     if (started) return;
     audio.unlock();
+    audio.go();
     overlay?.remove();
     overlay = null;
     started = true;
@@ -479,6 +527,9 @@ export function missionScreen(ctx: AppCtx, opts: MissionOpts): Screen {
     paused = false;
     ended = false;
     dockAnim = null;
+    fuseMarks.clear();
+    zoneStates = [];
+    mood = 0;
     log.replaceChildren();
     notebook.replaceChildren();
     queueSig = '';

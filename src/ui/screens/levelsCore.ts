@@ -64,6 +64,7 @@ export function decoderLevel(ctx: AppCtx, level: LevelDef): Screen {
     analyzing = null;
     arriving = true;
     audio.send(1);
+    // Neutral ping only: Bob must not hear which message it is (no motif here).
     stage.later(() => { arriving = false; audio.arrive(); update(); }, ctx.reducedMotion() ? 200 : 1000);
     update();
   }
@@ -75,7 +76,10 @@ export function decoderLevel(ctx: AppCtx, level: LevelDef): Screen {
     const wasLinked = b.linked;
     const [a1, a2] = b.askBoth(basis);
     askAt = { A: nowS(), B: nowS() };
-    if (wasLinked) deskBrokeAt = nowS();
+    if (wasLinked) {
+      deskBrokeAt = nowS();
+      audio.snap();
+    }
     audio.answer(a1.outcome, 'A');
     const same = a1.outcome === a2.outcome;
     L.setCaption(`${glyphText(basis, a1.outcome)} and ${glyphText(basis, a2.outcome)}: ${same ? 'SAME' : 'OPPOSITE'}${wasLinked ? '' : ' (link already gone)'}`);
@@ -98,7 +102,7 @@ export function decoderLevel(ctx: AppCtx, level: LevelDef): Screen {
     const pattern = patternBits(r.bench.state);
     const bits = game.analyze()!;
     analyzing = { t0: nowS(), pattern, link: 'hidden', bits, correct: null };
-    audio.decode(bits);
+    audio.analyzer(bits);
     L.setCaption('The analyzer asks the pair both questions at once.');
     stage.later(() => {
       announce(`Analyzer reads ${bits[0]} ${bits[1]}`);
@@ -328,7 +332,7 @@ export function oneQubitLevel(ctx: AppCtx, level: LevelDef): Screen {
       const d = game.send()!;
       vis = 'analyze';
       dock = { t0: nowS(), pattern: d.sentPattern, link: 'linked', bits: d.decoded, correct: d.correct };
-      audio.decode(d.decoded);
+      audio.analyzer(d.decoded);
       update();
       stage.later(() => {
         if (d.correct) {
@@ -367,13 +371,13 @@ export function oneQubitLevel(ctx: AppCtx, level: LevelDef): Screen {
     update();
     stage.later(() => {
       vis = 'idle';
-      audio.arrive();
+      audio.banked();
       if (!game.message) stage.later(() => {
         game.revealMessage();
         L.setCaption('');
         toast(`A message arrives: ${game.message}`, 'info', 2400);
         announce(`New message: ${game.message![0]} ${game.message![1]}`);
-        audio.tick();
+        audio.motif(game.message!);
         update();
       }, 650);
       update();

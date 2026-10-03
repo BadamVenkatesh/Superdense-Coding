@@ -8,7 +8,12 @@ import { LEVEL_COUNT } from './levels';
 export type ViewMode = 'game' | 'circuit';
 
 export interface Settings {
+  /** Master sound switch. */
   sound: boolean;
+  /** Generative music under the game. */
+  music: boolean;
+  /** 0…1 */
+  volume: number;
   captions: boolean;
   /** null = follow the operating system's prefers-reduced-motion. */
   reducedMotion: boolean | null;
@@ -36,7 +41,7 @@ export function defaultSave(): SaveData {
     stars: {},
     best: {},
     arcade: { quantum: 0, classical: 0, daily: { date: '', score: 0 } },
-    settings: { sound: true, captions: false, reducedMotion: null, view: 'game', unlockAll: false },
+    settings: { sound: true, music: true, volume: 0.8, captions: false, reducedMotion: null, view: 'game', unlockAll: false },
   };
 }
 
@@ -90,6 +95,8 @@ export function sanitize(raw: unknown): SaveData {
     },
     settings: {
       sound: bool(s.sound, true),
+      music: bool(s.music, true),
+      volume: num(s.volume, 0.8, 0, 1),
       captions: bool(s.captions, false),
       reducedMotion: s.reducedMotion === null || typeof s.reducedMotion === 'boolean' ? s.reducedMotion ?? null : null,
       view: s.view === 'circuit' ? 'circuit' : 'game',

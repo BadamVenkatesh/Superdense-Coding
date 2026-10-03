@@ -1,4 +1,5 @@
 /** Minimal DOM helpers (no framework). */
+import { audio } from '../audio/audio';
 type Attrs = Record<string, string | number | boolean | EventListener | undefined | null>;
 export type Child = Node | string | number | null | undefined | false;
 
@@ -55,6 +56,7 @@ export function pressFlash(b: HTMLElement | null | undefined): void {
 }
 
 export function shake(b: HTMLElement | null | undefined): void {
+  audio.deny();
   if (!b) return;
   b.classList.remove('shake');
   void b.offsetWidth;

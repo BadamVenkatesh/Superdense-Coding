@@ -72,7 +72,10 @@ export class BenchStage {
     const wasLinked = this.bench.linked;
     const a = this.bench.ask(who, basis);
     this.askAt[who] = nowS();
-    if (wasLinked) this.brokeAt = nowS();
+    if (wasLinked) {
+      this.brokeAt = nowS();
+      audio.snap();
+    }
     audio.answer(a.outcome, who);
     return a;
   }
@@ -96,7 +99,7 @@ export class BenchStage {
     audio.send(dur);
     this.later(() => {
       this.sharing = null;
-      audio.arrive();
+      audio.banked();
       then?.();
     }, this.sharing.dur * 1000 + 30);
   }

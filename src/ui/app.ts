@@ -2,7 +2,8 @@
  * App shell: hash router, screen lifecycle, settings, toasts, captions and the
  * screen-reader live region. Screens are plain functions that return an element.
  */
-import { audio } from '../audio/audio';
+import { audio, type MusicMode } from '../audio/audio';
+import { levelById } from '../game/levels';
 import { Store, type ViewMode } from '../game/store';
 import { on } from './bus';
 import { h } from './dom';
@@ -51,8 +52,7 @@ export function startApp(root: HTMLElement): AppCtx {
 
   const applySettings = () => {
     const st = store.data.settings;
-    audio.enabled = st.sound;
-    audio.captions = st.captions;
+    audio.configure({ enabled: st.sound, music: st.music, volume: st.volume, captions: st.captions });
     document.documentElement.classList.toggle('reduce-motion', ctx.reducedMotion());
     document.documentElement.dataset.view = st.view;
   };
@@ -103,6 +103,16 @@ export function startApp(root: HTMLElement): AppCtx {
     return { name: screens.has(name) ? name : 'title', params: parts.slice(1) };
   }
 
+  /** Which music fits a screen. */
+  function musicFor(name: string, params: string[]): MusicMode {
+    if (name === 'title') return 'title';
+    if (name === 'arcade') return 'mission';
+    if (name === 'level') return levelById(Number(params[0]))?.kind === 'mission' ? 'mission' : 'bench';
+    return 'menu';
+  }
+
+  let firstRender = true;
+  let lastRoute = '';
   function render(): void {
     try {
       current?.destroy?.();
@@ -111,6 +121,11 @@ export function startApp(root: HTMLElement): AppCtx {
     }
     current = null;
     const { name, params } = parse();
+    audio.music(musicFor(name, params));
+    const route = location.hash;
+    if (!firstRender && route !== lastRoute) audio.nav();
+    firstRender = false;
+    lastRoute = route;
     try {
       current = screens.get(name)!(ctx, params);
       host.replaceChildren(current.el);
@@ -136,6 +151,17 @@ export function startApp(root: HTMLElement): AppCtx {
   window.addEventListener('pointerdown', unlock, { passive: true });
   window.addEventListener('keydown', unlock);
 
+  // UI sounds for every button and level tile, via delegation (refusals use audio.deny in shake()).
+  const uiTarget = (e: Event) => (e.target as HTMLElement | null)?.closest?.('.btn, .level-tile, .seg button') as HTMLElement | null;
+  document.addEventListener('pointerover', (e) => {
+    const b = uiTarget(e);
+    if (b && (e as PointerEvent).pointerType === 'mouse' && !b.classList.contains('is-off') && !(b as HTMLButtonElement).disabled && !b.contains((e as PointerEvent).relatedTarget as Node)) audio.hover();
+  });
+  document.addEventListener('click', (e) => {
+    const b = uiTarget(e);
+    if (b && !b.classList.contains('is-off') && !(b as HTMLButtonElement).disabled) audio.click();
+  }, true);
+
   window.addEventListener('keydown', (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     const tag = (e.target as HTMLElement)?.tagName;
@@ -148,6 +174,7 @@ export function startApp(root: HTMLElement): AppCtx {
     if (k === 'm') {
       store.setSetting('sound', !store.data.settings.sound);
       applySettings();
+      if (store.data.settings.sound) audio.unlock();
     } else if (k === 'v') {
       ctx.setView(ctx.view() === 'game' ? 'circuit' : 'game');
     }

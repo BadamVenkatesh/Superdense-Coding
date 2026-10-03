@@ -13,7 +13,8 @@
     "e2e": "node scripts/e2e.mjs",
     "smoke:firefox": "node scripts/smoke-firefox.mjs",
     "perf": "node scripts/perf.mjs",
-    "smoke:routes": "node scripts/smoke-routes.mjs"
+    "smoke:routes": "node scripts/smoke-routes.mjs",
+    "audio": "node scripts/audio-check.mjs"
   },
   "license": "MIT",
   "devDependencies": {

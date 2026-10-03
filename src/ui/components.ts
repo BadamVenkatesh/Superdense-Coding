@@ -50,7 +50,7 @@ export function topbar(ctx: AppCtx, title: string, sub: string, extras: (Node | 
   syncSound();
   sound.addEventListener('click', () => {
     ctx.store.setSetting('sound', !ctx.store.data.settings.sound);
-    audio.enabled = ctx.store.data.settings.sound;
+    audio.configure({ enabled: ctx.store.data.settings.sound });
     if (audio.enabled) audio.unlock();
     syncSound();
   });
@@ -112,6 +112,7 @@ export function completeOverlay(o: CompleteOpts): HTMLElement {
     if (k === 'enter' && won) { e.preventDefault(); e.stopPropagation(); close(); ctx.go(hasNext ? `/level/${next}` : '/arcade'); }
   });
   setTimeout(() => overlay.querySelector<HTMLButtonElement>('.btn.primary')?.focus(), 50);
+  audio.open();
   return overlay;
 }
 
