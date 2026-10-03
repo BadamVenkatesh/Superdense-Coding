@@ -41,7 +41,22 @@ It produces the 33 screenshots in `submission/screenshots/`.
 - **Firefox** (`npm run smoke:firefox`): title, Level 1 agreement, a mission delivering one message, the Lab, no console errors. **PASS.**
 - **Safari:** not available in this environment. The game uses only standard APIs (Canvas 2D, Web Audio with a `webkitAudioContext` fallback, ResizeObserver with a resize fallback, a `roundRect` fallback).
 
-## 4. Performance (`npm run perf`)
+## 4. Sound (`npm run audio`)
+
+Real Chrome, reading an analyser on the master output:
+
+| Check | Result |
+|---|---|
+| The audio context runs after a user gesture | ✓ |
+| Title music is audible | RMS ≈ 0.015 |
+| Asking a question makes sound (answer + link snap) | RMS ≈ 0.034, so effects sit above the music |
+| With music off, an idle stage is silent | RMS 0.0000 |
+| Starting a mission plays the go cue | ✓ |
+| `M` mutes everything | RMS 0.0000 |
+
+Level 4 deliberately plays only a neutral arrival ping, so Bob can't *hear* which message Alice sent.
+
+## 5. Performance (`npm run perf`)
 
 | Metric | Result |
 |---|---|
@@ -50,7 +65,7 @@ It produces the 33 screenshots in `submission/screenshots/`.
 | Frame rate, Level 10 with a full rack | **60 fps** |
 | JS heap during a mission | ~1.5–2.5 MB (varies with GC timing) |
 
-## 5. Accessibility checks
+## 6. Accessibility checks
 
 - Every action is reachable from the keyboard (the e2e plays all 10 levels without a mouse). Focus rings are visible.
 - Bell states are distinguishable without colour: crossed vs parallel strands, rungs vs zigzag, plus SAME/OPPOSITE words in every readout.
@@ -58,7 +73,7 @@ It produces the 33 screenshots in `submission/screenshots/`.
 - The ARIA live region announces asks, link changes, decodes and new messages. Sound captions are optional.
 - Touch targets are ≥ 44 px, with responsive layouts at 390 px and 1440 px.
 
-## 6. Manual playtest log (beginner perspective) and fixes
+## 7. Manual playtest log (beginner perspective) and fixes
 
 | Observation | Fix |
 |---|---|
@@ -74,4 +89,4 @@ It produces the 33 screenshots in `submission/screenshots/`.
 | Which button is which bit? | PHASE/FLIP buttons accent-matched to the card digits they control (yellow/pink), with labels kept |
 | Mobile: the channel and READY labels overlapped | Narrow-screen labels |
 
-**Not done:** testing with real first-time players (the biggest remaining risk: difficulty was tuned by bots, not newcomers), and listening to the audio by ear (headless environment).
+**Not done:** testing with real first-time players (the biggest remaining risk: difficulty was tuned by bots, not newcomers), and judging the audio's *taste* by ear. Its presence, levels and muting are verified by the meter test above.

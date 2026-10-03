@@ -33,7 +33,7 @@ src/ui/           presentation only. Never does quantum maths itself.
   scene.ts          canvas renderer: orbs, two-strand links, ladder, channel, zones, spy, analyzer
   components.ts     message cards, pattern badges, circuit SVG, overlays
   screens/          title, levels map, levels 1–5, mission (6–10 + arcade), lab, how-to, settings
-src/audio/audio.ts  synthesised cues + captions
+src/audio/audio.ts  synthesised effects (sfx bus) + generative music (music bus) → master → meter
 ```
 
 ## The simulator
@@ -61,7 +61,11 @@ src/audio/audio.ts  synthesised cues + captions
 ## Robustness
 
 - **Storage:** every access is wrapped. The game runs with storage blocked (tested), and corrupt saves are sanitised (tested).
-- **Audio:** created on the first gesture. If blocked or unsupported, it's silent and everything still works.
+- **Audio:**
+  - The context is created on the first gesture (browser autoplay rules). The very first cue after that gesture is queued, not dropped.
+  - Effects and music run on separate buses into a master gain, with Sound, Music and Volume settings.
+  - The music is a lookahead scheduler (16th notes; tempo and density follow the mission's intensity) over two filtered drones. It stops when the tab is hidden.
+  - If audio is blocked or unsupported, every call is a silent no-op and the game still works.
 - **Errors:**
   - A screen that throws is replaced by a recovery panel with a way back.
   - A rendering error in one canvas frame is caught and logged, and the next frame draws.

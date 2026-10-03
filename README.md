@@ -75,6 +75,26 @@ Tip: press SEND or SHARE *while the channel is charging*. The press is remembere
 
 **Judging in a hurry?** The title screen links straight to **Level 5** (about 2 minutes), and *Settings → Unlock all levels* opens everything.
 
+## Sound
+
+All sound is synthesised live with the Web Audio API, so there are no audio files to download. Every cue means something:
+
+| You hear | It means |
+|---|---|
+| Two tones gliding into one | A new entangled pair is made |
+| A short crackle | Asking a question just broke the link |
+| A quick up-down flick / a filter sweep | FLIP (X) / PHASE (Z) on your half |
+| A whoosh moving left → right | One qubit crossing the channel |
+| A two-note click-clack | Bob's half is banked in his rack |
+| A soft chord when a message arrives… | …the same chord plays when Bob's analyzer decodes it correctly |
+| Three analyzer sounds | UNTANGLE (CNOT), TURN (H), READ, in sync with the animation |
+| Ping / tick-tick / low thud | Channel ready / a fuse running out / a heart lost |
+| Hum, shimmer, static | A noise zone lights / the spy's eye opens / the spy looked |
+
+**Music:** a generative duet. Alice's drone and Bob's drone sit a fifth apart, and an arpeggio grows busier as messages pile up and fuses run down, so you can hear the rush coming.
+
+`M` mutes everything. *Settings* has separate **Sound**, **Music** and **Volume** controls, plus optional on-screen **captions** for every cue.
+
 ## The physics, briefly
 
 - **Convention:** `|q0 q1⟩`, where q0 = Alice (her qubit travels) and q1 = Bob (shared earlier). Gates are listed in time order.
@@ -92,7 +112,7 @@ The **Quantum Lab** (title screen) shows all of this live: amplitudes, kets, Bel
 ## Technology
 
 - TypeScript + Vite. No UI framework.
-- Canvas 2D for the stage, DOM for everything else, Web Audio synthesis for sound.
+- Canvas 2D for the stage, DOM for everything else, Web Audio synthesis for all sound effects and the generative music.
 - About 44 KB of gzipped JavaScript. Self-hosted fonts.
 - Our own dependency-free state-vector simulator in `src/quantum/` (complex amplitudes, gates, Born-rule measurement with collapse, partial trace).
 
@@ -100,7 +120,7 @@ The **Quantum Lab** (title screen) shows all of this live: amplitudes, kets, Bel
 src/quantum/  the physics (pure, fully unit-tested)
 src/game/     game rules on real state vectors: mission engine, bench levels, scoring, saves, bots
 src/ui/       router, canvas scene, screens
-src/audio/    synthesised sound
+src/audio/    synthesised sound effects + generative music
 tests/        quantum · game · integration
 scripts/      e2e (Chrome), smoke-firefox, perf, smoke-routes
 submission/   competition write-ups and screenshots
@@ -116,6 +136,7 @@ npm run dev          # http://localhost:5173
 npm test             # 113 unit + integration tests
 npm run build        # type-check + production build → dist/
 npm run e2e          # keyboard playthrough of all 10 levels in Chrome (+ screenshots)
+npm run audio        # proves sound and music reach the output (and that mute is silent)
 TMPDIR=~/snap/firefox/common/tmp npm run smoke:firefox   # Firefox smoke test (snap Firefox needs TMPDIR)
 npm run preview      # serve dist/ locally
 ```

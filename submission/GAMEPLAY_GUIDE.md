@@ -15,7 +15,7 @@
 | `0` `1` | Type a two-bit answer (level 4) |
 | `N` | New pair (bench levels) |
 | `V` | GAME ↔ CIRCUIT names |
-| `M` | Sound on/off |
+| `M` | Sound on/off (Settings has separate Music and Volume controls) |
 | `Esc` | Back / pause |
 
 Everything is also clickable and touch-friendly.
@@ -72,6 +72,15 @@ To send a message, make the link look like the card, then SEND.
 - Hearts left at the end: +150 each.
 - Wrong or expired messages cost a heart.
 - ★★★ = no slips, ★★ = one slip, ★ = cleared.
+
+## Listening
+
+Every important event has a sound, and the music tells you how busy the channel is:
+- A new message plays a short chord. When Bob decodes it correctly, the **same chord** comes back.
+- The music gets busier when messages are waiting and fuses are running down.
+- A double tick means a fuse is about to expire.
+
+Turn on *Settings → Sound captions* to see every cue written on screen.
 
 ## Tips
 
