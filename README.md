@@ -45,33 +45,33 @@ The one sentence we wanted every player to be able to say afterwards:
 
 ## How to play
 
-| | |
-|---|---|
-| **Goal** | Get each two-bit message to Bob, correctly, before its fuse burns out. |
-| **SHARE** `S` | Send Bob his half of a fresh pair. Carries no message. Do it while it's quiet. |
-| **FLIP** `F` / **PHASE** `P` | Act on *your* half only. FLIP crosses the link (2nd bit). PHASE makes it zigzag (1st bit). |
-| **SEND** `Space` | When the link matches the message card, send your half: one qubit crosses. |
-| **BIT BY BIT** `B` | No pair? Send two lone qubits, one bit each. Slow. |
-| Bench levels | `Q`/`W` ask ▲▼ / ◀ ▶ · `O`/`L` Bob asks · `A` analyzer · `N` new pair |
-| Anywhere | `V` GAME ↔ CIRCUIT names · `M` sound · `Esc` back/pause |
+|                                              |                                                                                             |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| **Goal**                               | Get each two-bit message to Bob, correctly, before its fuse burns out.                      |
+| **SHARE** `S`                        | Send Bob his half of a fresh pair. Carries no message. Do it while it's quiet.              |
+| **FLIP** `F` / **PHASE** `P` | Act on*your* half only. FLIP crosses the link (2nd bit). PHASE makes it zigzag (1st bit). |
+| **SEND** `Space`                     | When the link matches the message card, send your half: one qubit crosses.                  |
+| **BIT BY BIT** `B`                   | No pair? Send two lone qubits, one bit each. Slow.                                          |
+| Bench levels                                 | `Q`/`W` ask ▲▼ / ◀ ▶ · `O`/`L` Bob asks · `A` analyzer · `N` new pair    |
+| Anywhere                                     | `V` GAME ↔ CIRCUIT names · `M` sound · `Esc` back/pause                            |
 
 Tip: press SEND or SHARE *while the channel is charging*. The press is remembered and fires the moment it opens.
 
 **Levels:**
 
-| # | Level | What it teaches |
-|---|---|---|
-| 1 | PAIR | Random answers that always agree |
-| 2 | THE LINK | Two agreements, no predictable individual answers |
-| 3 | FOUR MOVES | Local operations change the joint state; no signalling |
-| 4 | THE DECODER | Bell measurement vs reading the halves |
-| 5 | **ONE QUBIT** | The signature moment: one qubit, two bits |
-| 6 | DEAD DROP | Fluency |
-| 7 | RUSH HOUR | Entanglement as a resource banked in advance |
-| 8 | STATIC | Channel noise as Pauli errors |
-| 9 | WIRETAP | An eavesdropper learns nothing and disturbs the pair |
-| 10 | LAST LIGHT | Everything at once |
-| ∞ | Arcade | Endless, daily seed, plus a **classical** mode to compare |
+| #  | Level               | What it teaches                                                |
+| -- | ------------------- | -------------------------------------------------------------- |
+| 1  | PAIR                | Random answers that always agree                               |
+| 2  | THE LINK            | Two agreements, no predictable individual answers              |
+| 3  | FOUR MOVES          | Local operations change the joint state; no signalling         |
+| 4  | THE DECODER         | Bell measurement vs reading the halves                         |
+| 5  | **ONE QUBIT** | The signature moment: one qubit, two bits                      |
+| 6  | DEAD DROP           | Fluency                                                        |
+| 7  | RUSH HOUR           | Entanglement as a resource banked in advance                   |
+| 8  | STATIC              | Channel noise as Pauli errors                                  |
+| 9  | WIRETAP             | An eavesdropper learns nothing and disturbs the pair           |
+| 10 | LAST LIGHT          | Everything at once                                             |
+| ∞ | Arcade              | Endless, daily seed, plus a**classical** mode to compare |
 
 **Judging in a hurry?** The title screen links straight to **Level 5** (about 2 minutes), and *Settings → Unlock all levels* opens everything.
 
@@ -132,5 +132,3 @@ npm run preview      # serve dist/ locally
 
 Made for quriosity 2026 (ISAQC, IIIT Hyderabad). MIT licence. Fonts: Space Grotesk, Inter and JetBrains Mono (SIL OFL, via Fontsource).
 Superdense coding: C. H. Bennett & S. J. Wiesner, *Phys. Rev. Lett.* 69, 2881 (1992). Holevo bound: A. S. Holevo (1973).
-# Superdense-Coding
-# Superdense-Coding
